@@ -1,15 +1,19 @@
 const apiUrl = "https://4t0ypwqb11.execute-api.us-east-1.amazonaws.com/prod";
 
-document.getElementById("quoteBtn").addEventListener("click", async function () {
+document.getElementById("quoteBtn").addEventListener("click", async function() {
     let quoteElement = document.getElementById("quote");
     quoteElement.innerText = "Fetching a motivational message... ⏳";
 
     try {
         const response = await fetch(apiUrl);
-        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-        // Check if messages exist and are in the correct format
+        const data = await response.json();
+        
         if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+            // Pick a random quote from the API response
             let randomIndex = Math.floor(Math.random() * data.messages.length);
             quoteElement.innerText = data.messages[randomIndex].message;
         } else {
