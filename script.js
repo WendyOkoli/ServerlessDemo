@@ -8,7 +8,31 @@ const quotes = [
     "You got this! Don't stop believing. ✨"
 ];
 
-document.getElementById("quoteBtn").addEventListener("click", function() {
-    let randomIndex = Math.floor(Math.random() * quotes.length);
-    document.getElementById("quote").innerText = quotes[randomIndex];
+const apiUrl = "https://4t0ypwqb11.execute-api.us-east-1.amazonaws.com/prod";
+
+document.getElementById("quoteBtn").addEventListener("click", async function() {
+    let quoteElement = document.getElementById("quote");
+    quoteElement.innerText = "Fetching a motivational message... ⏳";
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.messages && data.messages.length > 0) {
+            // Merge API messages with local quotes
+            const allQuotes = [...quotes, ...data.messages.map(item => item.message)];
+
+            // Pick a random quote
+            let randomIndex = Math.floor(Math.random() * allQuotes.length);
+            quoteElement.innerText = allQuotes[randomIndex];
+        } else {
+            throw new Error("No messages found in API response.");
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        
+        // Fallback to a random local quote
+        let randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteElement.innerText = quotes[randomIndex];
+    }
 });
